@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "moduleDetection": "auto" /* Control what method is used to detect module-format JS files. */,
+    "module": "commonjs" /* Specify what module code is generated. */,
+    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    "strict": true /* Enable all strict type-checking options. */,
+    "skipLibCheck": true, /* Skip type checking all .d.ts files. */
+    "jsx":"react-jsx",   //不需要手动引入react
+    "typeRoots": ["./typings/*.d.ts","node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*":["./src/*"]  //配置别名
+    },
+    "allowJs": false, // 允许编辑js文件
+    "noEmit": true, // 不生成输出文件
+  },
+  "include": ["./src/*", "./src/**/*.ts", "./src/**/*.tsx", "./typings/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}
