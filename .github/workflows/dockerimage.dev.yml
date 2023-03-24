@@ -7,7 +7,7 @@ on:
     branches: ['**']
 
 jobs:
-  build:
+  build_push:
     runs-on: ubuntu-latest
 
     strategy:
@@ -15,20 +15,45 @@ jobs:
         thread: [platform]
         include:
           - thread: platform
-            name: $(echo $GITHUB_REPOSITORY | cut -d / -f 2 )
+            repository: $(echo $GITHUB_REPOSITORY | cut -d / -f 2)
             tag: latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: docker login
-      env:
-        DOCKER_USER: ${{secrets.DOCKER_USER}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - uses: actions/checkout@v2
 
-    - name: build the image
-      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/${{matrix.name}}:${{matrix.tag}}
+      - name: setup node
+        uses: actions/setup-node@master
+        with:
+          node-version: 16.x
 
-    - name: Docker push
-      run: docker push ${{secrets.DOCKER_USER}}/${{matrix.name}}:${{matrix.tag}}
+      - name: Install pnpm
+        run: |
+          npm i -g pnpm
+
+      - name: Install dependencies
+        run: |
+          pnpm install
+
+      - name: build
+        run: |
+          pnpm run build:prod
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: build the image
+        run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/${{matrix.repository}}:${{matrix.tag}}
+
+      - name: Docker push
+        run: docker push ${{secrets.DOCKER_USER}}/${{matrix.repository}}:${{matrix.tag}}
+
+
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      #   with:
+      #     context: .
+      #     push: true
+      #     tags: ${{secrets.DOCKER_USER}}/${{matrix.repository}}:${{matrix.tag}}
